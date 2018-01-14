@@ -42,6 +42,16 @@ class UserOAuthRepository
     }
 
     /**
+     * @param  string  $name
+     * @param  mixed   $ownerId
+     * @return \OWolf\Laravel\Contracts\UserOAuth|null
+     */
+    public function getByOwnerId($name, $ownerId)
+    {
+        return $this->model->where('name', $name)->where('owner_id', $ownerId)->first();
+    }
+
+    /**
      * @param  mixed   $userId
      * @param  string  $name
      * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken

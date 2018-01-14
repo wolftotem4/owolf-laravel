@@ -137,16 +137,16 @@ class UserOAuthSession
     }
 
     /**
-     * @param  \League\OAuth2\Client\Token\AccessToken|string  $token
+     * @param  \League\OAuth2\Client\Token\AccessToken|string  $ownerId
      * @return bool
      */
-    public function login($token)
+    public function login($ownerId)
     {
-        if ($token instanceof AccessToken) {
-            $token = $token->getToken();
+        if ($ownerId instanceof AccessToken) {
+            $ownerId = $ownerId->getResourceOwnerId();
         }
 
-        $oauth = $this->repository()->getAccessToken($this->getName(), $token);
+        $oauth = $this->repository()->getByOwnerId($this->getName(), $ownerId);
         $valid = ($oauth && $oauth->user);
         if ($valid) {
             $this->auth()->setUser($oauth->user);

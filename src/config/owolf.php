@@ -15,9 +15,10 @@ return [
 //                'clientId'      => 'your_client_id',
 //                'clientSecret'  => 'your_client_secret',
 //                'accessType'    => 'offline',
+//                'redirectUri'   => route('oauth.callback'),
 //            ],
 //        ],
-
+//
 //        'facebook' => [
 //            'driver' => 'facebook.oauth',
 //            'scope'  => ['public_profile', 'email'],
@@ -25,6 +26,7 @@ return [
 //                'clientId'          => 'your_app_id',
 //                'clientSecret'      => 'your_app_secret',
 //                'graphApiVersion'   => 'v2.10',
+//                'redirectUri'       => route('oauth.callback'),
 //            ]
 //        ],
     ],

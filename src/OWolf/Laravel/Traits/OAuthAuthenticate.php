@@ -52,8 +52,7 @@ trait OAuthAuthenticate
                 App::abort(401, 'Invalid state parameter.');
             }
 
-            $redirect_uri = $this->redirectUri($provider);
-            $accessToken = $handler->getAccessTokenByCode($request->query('code'), compact('redirect_uri'));
+            $accessToken = $handler->getAccessTokenByCode($request->query('code'));
 
             if ($session->login($accessToken)) {
                 return Redirect::intended($this->redirectPath());
@@ -76,16 +75,7 @@ trait OAuthAuthenticate
      */
     protected function authorizationParams($provider)
     {
-        return ['redirect_uri' => $this->redirectUri($provider)];
-    }
-
-    /**
-     * @param  string  $provider
-     * @return string
-     */
-    protected function redirectUri($provider)
-    {
-        return URL::route('oauth.callback', compact('provider'));
+        return [];
     }
 
     /**

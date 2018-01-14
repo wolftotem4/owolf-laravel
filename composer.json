@@ -23,7 +23,8 @@
                 "OWolf\\Laravel\\CredentialsServiceProvider"
             ],
             "aliases": {
-                "Credentials": "OWolf\\Laravel\\Credentials"
+                "Credentials": "OWolf\\Laravel\\Facades\\Credentials",
+                "CredentialsProvider": "OWolf\\Laravel\\Facades\\CredentialsProvider"
             }
         }
     }

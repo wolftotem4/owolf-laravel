@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \League\OAuth2\Client\Provider\AbstractProvider getProvider(string $name)
  */
 
-class Provider extends Facade
+class CredentialsProvider extends Facade
 {
     /**
      * @return string

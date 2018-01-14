@@ -66,7 +66,7 @@ class CredentialsManager
     {
         if (! isset($this->credentials[$name])) {
             $config = $this->container['config']->get("owolf.credentials.$name", []);
-            $this->credentials[$name] = $this->resolve($config);
+            $this->credentials[$name] = $this->resolve($name, $config);
         }
         return $this->credentials[$name];
     }

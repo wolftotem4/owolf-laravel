@@ -44,7 +44,7 @@ class ProviderManager
 
     /**
      * @param  string  $name
-     * @return \League\OAuth2\Client\Provider\AbstractProvider
+     * @return \OWolf\Laravel\Contracts\ProviderHandler
      */
     protected function resolve($name)
     {
@@ -59,7 +59,20 @@ class ProviderManager
             }
         }
 
-        return $this->driverResolvers[$driver]($config);
+        return $this->driverResolvers[$driver]($name, $config);
+    }
+
+    /**
+     * @param  string  $name
+     * @return \OWolf\Laravel\Contracts\ProviderHandler
+     */
+    public function getHandler($name)
+    {
+        if (! isset($this->providers[$name])) {
+            $this->providers[$name] = $this->resolve($name);
+        }
+
+        return $this->providers[$name];
     }
 
     /**
@@ -68,10 +81,6 @@ class ProviderManager
      */
     public function getProvider($name)
     {
-        if (! isset($this->providers[$name])) {
-            $this->providers[$name] = $this->resolve($name);
-        }
-
-        return $this->providers[$name];
+        return $this->getHandler($name)->provider();
     }
 }

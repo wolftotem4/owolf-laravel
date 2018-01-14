@@ -17,6 +17,7 @@ class CredentialsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../database/migrations/' => database_path('migrations'),
             __DIR__ . '/../../App/UserOAuth.php' => app_path('UserOAuth.php'),
+            __DIR__ . '/../../config/owolf.php' => config_path('owolf.php'),
         ]);
     }
 
@@ -41,7 +42,7 @@ class CredentialsServiceProvider extends ServiceProvider
             return $app->make($model);
         });
 
-        $this->app->alias(UserOAuthContract::class, 'user.oauth');
+        $this->app->alias('user.oauth', UserOAuthContract::class);
 
         $this->app->singleton(UserOAuthRepository::class);
 

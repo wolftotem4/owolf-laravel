@@ -4,7 +4,6 @@ namespace OWolf\Laravel;
 
 use Closure;
 use Illuminate\Contracts\Container\Container;
-use InvalidArgumentException;
 use OWolf\Contracts\CredentialsInterface;
 
 class CredentialsManager
@@ -53,7 +52,11 @@ class CredentialsManager
     {
         $driver = array_get($config, 'driver');
         if (! isset($this->resolver[$driver])) {
-            throw new InvalidArgumentException('Invalid Driver: ' . htmlentities($driver));
+            if ($driver) {
+                throw new \RuntimeException('Invalid Driver: ' . htmlentities($driver));
+            } else {
+                throw new \RuntimeException('No driver specified');
+            }
         }
 
         return $this->resolver[$driver]($name, $config);

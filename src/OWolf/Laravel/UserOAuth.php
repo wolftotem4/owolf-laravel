@@ -5,8 +5,9 @@ namespace OWolf\Laravel;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use League\OAuth2\Client\Token\AccessToken;
+use OWolf\Laravel\Contracts\UserOAuth as UserOAuthContract;
 
-class UserOAuth extends Model
+class UserOAuth extends Model implements UserOAuthContract
 {
     /**
      * @var string

@@ -45,17 +45,18 @@ class CredentialsManager
     }
 
     /**
+     * @param  string  $name
      * @param  array   $config
      * @return \OWolf\Contracts\CredentialsInterface
      */
-    protected function resolve(array $config)
+    protected function resolve($name, array $config)
     {
         $driver = array_get($config, 'driver');
         if (! isset($this->resolver[$driver])) {
             throw new InvalidArgumentException('Invalid Driver: ' . htmlentities($driver));
         }
 
-        return $this->resolver[$driver]($this->container);
+        return $this->resolver[$driver]($name, $config);
     }
 
     /**
@@ -65,7 +66,7 @@ class CredentialsManager
     public function get($name)
     {
         if (! isset($this->credentials[$name])) {
-            $config = $this->container['config']->get("owolf.credentials.$name", []);
+            $config = array_get($this->container['config']['owolf.credentials'], $name, []);
             $this->credentials[$name] = $this->resolve($name, $config);
         }
         return $this->credentials[$name];

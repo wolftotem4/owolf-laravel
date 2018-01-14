@@ -20,7 +20,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "OWolf\\Laravel\\CredentialsProvider"
+                "OWolf\\Laravel\\CredentialsServiceProvider"
             ],
             "aliases": {
                 "Credentials": "OWolf\\Laravel\\Credentials"

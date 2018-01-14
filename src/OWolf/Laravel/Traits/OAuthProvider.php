@@ -21,13 +21,14 @@ trait OAuthProvider
 
     /**
      * @param  string  $code
+     * @param  array   $options
      * @return \League\OAuth2\Client\Token\AccessToken
      *
      * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
      */
-    public function getAccessTokenByCode($code)
+    public function getAccessTokenByCode($code, array $options = [])
     {
-        return $this->provider()->getAccessToken('authorization_code', compact('code'));
+        return $this->provider()->getAccessToken('authorization_code', compact('code') + $options);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace OWolf\Laravel;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Container\Container;
 use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Exceptions\UserOAuthNotLoginException;
@@ -138,20 +139,15 @@ class UserOAuthSession
 
     /**
      * @param  \League\OAuth2\Client\Token\AccessToken|string  $ownerId
-     * @return bool
+     * @return \OWolf\Laravel\Contracts\UserOAuth|null
      */
-    public function login($ownerId)
+    public function getByOwner($ownerId)
     {
         if ($ownerId instanceof AccessToken) {
             $ownerId = $ownerId->getResourceOwnerId();
         }
 
-        $oauth = $this->repository()->getByOwnerId($this->getName(), $ownerId);
-        $valid = ($oauth && $oauth->user_id && ($user = $this->auth()->getProvider()->retrieveById($oauth->user_id)));
-        if ($valid) {
-            $this->auth()->setUser($user);
-        }
-        return $valid;
+        return $this->repository()->getByOwnerId($this->getName(), $ownerId);
     }
 
     /**

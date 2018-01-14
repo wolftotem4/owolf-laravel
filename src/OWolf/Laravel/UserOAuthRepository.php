@@ -2,6 +2,7 @@
 
 namespace OWolf\Laravel;
 
+use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Contracts\UserOAuth as UserOAuthContract;
 
 class UserOAuthRepository
@@ -27,6 +28,6 @@ class UserOAuthRepository
      */
     public function getUserOAuth($userId, $name)
     {
-        return $this->model->where('user_id', $userId)->where('name', $name)->first();
+        return $this->model->firstOrNew(['user_id', $userId, 'name' => $name]);
     }
 }

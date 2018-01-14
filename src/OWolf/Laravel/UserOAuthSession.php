@@ -4,7 +4,7 @@ namespace OWolf\Laravel;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Session\Session;
+use League\OAuth2\Client\Token\AccessToken;
 
 class UserOAuthSession
 {
@@ -48,7 +48,6 @@ class UserOAuthSession
     {
         $this->container = $container;
         $this->name      = $name;
-        $this->config    = $config;
     }
 
     /**
@@ -84,6 +83,14 @@ class UserOAuthSession
     }
 
     /**
+     * @return \Illuminate\Contracts\Auth\Authenticatable
+     */
+    public function getUser()
+    {
+        return $this->auth();
+    }
+
+    /**
      * @return \OWolf\Laravel\Contracts\UserOAuth|null
      */
     public function getUserOAuth()
@@ -98,5 +105,15 @@ class UserOAuthSession
     {
         $oauth = $this->getUserOAuth();
         return ($oauth) ? $oauth->toAccessToken() : null;
+    }
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
+     * @return $this
+     */
+    public function setAccessToken(AccessToken $accessToken)
+    {
+        $this->getUserOAuth()->setAccessToken($accessToken);
+        return $this;
     }
 }

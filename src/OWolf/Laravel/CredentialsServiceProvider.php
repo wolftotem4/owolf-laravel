@@ -7,6 +7,9 @@ use OWolf\Laravel\Contracts\UserOAuth as UserOAuthContract;
 
 class CredentialsServiceProvider extends ServiceProvider
 {
+    /**
+     * @var bool
+     */
     protected $defer = true;
 
     public function boot()
@@ -42,6 +45,10 @@ class CredentialsServiceProvider extends ServiceProvider
 
         $this->app->singleton(UserOAuthRepository::class);
 
+        $this->app->singleton(UserOAuthManager::class, function ($app) {
+            return new UserOAuthManager($app);
+        });
+
         $this->app->bind(UserOAuthSession::class, function ($app, $args) {
             $repository = $app->make(UserOAuthRepository::class);
             $session = new UserOAuthSession($app, ...$args);
@@ -50,11 +57,15 @@ class CredentialsServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * @return array
+     */
     public function provides()
     {
         return [
             'owolf.credentials', 'user.oauth', UserOAuthContract::class,
-            UserOAuthRepository::class,
+            UserOAuthRepository::class, UserOAuthManager::class,
+            UserOAuthSession::class,
         ];
     }
 }

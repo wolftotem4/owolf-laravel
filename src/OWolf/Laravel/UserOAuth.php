@@ -47,6 +47,21 @@ class UserOAuth extends Model implements UserOAuthContract
     }
 
     /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
+     * @return $this
+     */
+    public function setAccessToken(AccessToken $accessToken)
+    {
+        $this->fill([
+            'access_token'  => $accessToken->getToken(),
+            'owner_id'      => $accessToken->getResourceOwnerId(),
+            'refresh_token' => $accessToken->getRefreshToken(),
+            'expires_at'    => $accessToken->getExpires(),
+        ]);
+        return $this;
+    }
+
+    /**
      * @return \League\OAuth2\Client\Token\AccessToken
      */
     public function toAccessToken()

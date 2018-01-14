@@ -2,6 +2,7 @@
 
 namespace OWolf\Laravel;
 
+use Closure;
 use Illuminate\Contracts\Container\Container;
 
 class UserOAuthManager
@@ -12,6 +13,11 @@ class UserOAuthManager
     protected $container;
 
     /**
+     * @var array
+     */
+    protected $session = array();
+
+    /**
      * UserOAuthManager constructor.
      * @param \Illuminate\Contracts\Container\Container $container
      */
@@ -20,8 +26,25 @@ class UserOAuthManager
         $this->container = $container;
     }
 
-    public function getAccessToken()
+    /**
+     * @param  string  $name
+     * @return \OWolf\Laravel\UserOAuthSession
+     */
+    protected function resolve($name)
     {
-        $this->container->make('user.oauth');
+        $config = $this->container['config']["credentials.$name"];
+        return $this->container->make(UserOAuthSession::class, [$name, $config]);
+    }
+
+    /**
+     * @param  string  $name
+     * @return \OWolf\Laravel\UserOAuthSession
+     */
+    public function session($name)
+    {
+        if (! isset($this->session[$name])) {
+            $this->session[$name] = $this->resolve($name);
+        }
+        return $this->session[$name];
     }
 }

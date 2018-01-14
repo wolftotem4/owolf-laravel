@@ -67,6 +67,23 @@ class UserOAuthSession
     }
 
     /**
+     * @return \OWolf\Laravel\Contracts\ProviderHandler
+     */
+    public function handler()
+    {
+        return $this->getHandler();
+    }
+
+    /**
+     * @return \OWolf\Laravel\Contracts\ProviderHandler
+     */
+    public function getHandler()
+    {
+        $manager = $this->container->make('owolf.provider');
+        return $manager->handler($this->getName());
+    }
+
+    /**
      * @return string
      */
     public function getName()
@@ -96,6 +113,22 @@ class UserOAuthSession
     public function getUserOAuth()
     {
         return $this->repository()->getUserOAuth($this->getUserId(), $this->getName());
+    }
+
+    /**
+     * @return \League\OAuth2\Client\Provider\AbstractProvider
+     */
+    public function provider()
+    {
+        return $this->getProvider();
+    }
+
+    /**
+     * @return \League\OAuth2\Client\Provider\AbstractProvider
+     */
+    public function getProvider()
+    {
+        return $this->handler()->provider();
     }
 
     /**

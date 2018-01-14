@@ -2,6 +2,7 @@
 
 namespace OWolf\Laravel;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Container\Container;
 use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Exceptions\UserOAuthNotLoginException;
@@ -67,7 +68,9 @@ class UserOAuthSession
     }
 
     /**
-     * @return \OWolf\Laravel\Contracts\ProviderHandler
+     * @return \OWolf\Laravel\Contracts\OAuthHandler
+     *
+     * @throws \OWolf\Laravel\Exceptions\InvalidOAuthProvider
      */
     public function handler()
     {
@@ -75,12 +78,14 @@ class UserOAuthSession
     }
 
     /**
-     * @return \OWolf\Laravel\Contracts\ProviderHandler
+     * @return \OWolf\Laravel\Contracts\OAuthHandler
+     *
+     * @throws \OWolf\Laravel\Exceptions\InvalidOAuthProvider
      */
     public function getHandler()
     {
         $manager = $this->container->make('owolf.provider');
-        return $manager->getHandler($this->getName());
+        return $manager->getOAuthHandler($this->getName());
     }
 
     /**
@@ -132,6 +137,24 @@ class UserOAuthSession
     }
 
     /**
+     * @param  \League\OAuth2\Client\Token\AccessToken|string  $token
+     * @return bool
+     */
+    public function login($token)
+    {
+        if ($token instanceof AccessToken) {
+            $token = $token->getToken();
+        }
+
+        $oauth = $this->repository()->getAccessToken($this->getName(), $token);
+        $valid = ($oauth && $oauth->user);
+        if ($valid) {
+            $this->auth()->setUser($oauth->user);
+        }
+        return $valid;
+    }
+
+    /**
      * @return \League\OAuth2\Client\Token\AccessToken
      * @throws \OWolf\Laravel\Exceptions\UserOAuthNotLoginException
      */
@@ -145,11 +168,17 @@ class UserOAuthSession
     }
 
     /**
-     * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
+     * @param  \League\OAuth2\Client\Token\AccessToken $accessToken
      * @return $this
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function setAccessToken(AccessToken $accessToken)
     {
+        if (! $this->auth()->check()) {
+            throw new AuthorizationException;
+        }
+
         $this->repository()->setUserAccessToken($this->getUserId(), $this->getName(), $accessToken);
         return $this;
     }

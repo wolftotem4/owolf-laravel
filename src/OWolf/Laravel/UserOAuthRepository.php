@@ -32,6 +32,16 @@ class UserOAuthRepository
     }
 
     /**
+     * @param  string  $name
+     * @param  string  $token
+     * @return \OWolf\Laravel\Contracts\UserOAuth|null
+     */
+    public function getAccessToken($name, $token)
+    {
+        return $this->model->where('name', $name)->where('access_token', $token)->first();
+    }
+
+    /**
      * @param  mixed   $userId
      * @param  string  $name
      * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken

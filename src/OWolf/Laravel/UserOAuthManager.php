@@ -32,7 +32,7 @@ class UserOAuthManager
      */
     protected function resolve($name)
     {
-        $config = $this->container['config']["credentials.$name"];
+        $config = $this->container['config']["owolf.credentials.$name"];
         return $this->container->make(UserOAuthSession::class, [$name, $config]);
     }
 

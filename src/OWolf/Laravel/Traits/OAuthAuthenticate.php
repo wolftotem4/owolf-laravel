@@ -25,7 +25,7 @@ trait OAuthAuthenticate
         try {
             $handler = CredentialsProvider::getOAuthHandler($provider);
 
-            $authUrl = $handler->getAuthorizationUrl();
+            $authUrl = $handler->getAuthorizationUrl($this->authorizationParams($provider));
             $state = $handler->provider()->getState();
 
             $request->session()->push('oauth2state', $state);
@@ -54,13 +54,13 @@ trait OAuthAuthenticate
 
             $accessToken = $handler->getAccessTokenByCode($request->query('code'));
 
-            if (! $session->auth()->check()) {
-
-                return $session->registerOAuth($provider, $accessToken);
-
+            if ($session->login($accessToken)) {
+                return Redirect::intended($this->redirectPath());
+            } elseif ($session->auth()->check()) {
+                $session->setAccessToken($accessToken);
+                return Redirect::intended($this->redirectPath());
             } else {
-
-                return $this->attemptLogin($provider, $accessToken);
+                return $this->registerOAuth($provider, $accessToken);
             }
         } catch (InvalidOAuthProvider $e) {
             App::Abort(500, 'Invalid OAuth provider.');
@@ -69,65 +69,14 @@ trait OAuthAuthenticate
         }
     }
 
-//    /**
-//     * @param  string $provider
-//     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
-//     */
-//    public function link($provider)
-//    {
-//        $session = UserOAuth::session($provider);
-//        $oauth = $session->getUserOAuth();
-//
-//        if (! $oauth) {
-//
-//            // 忽略空認證
-//            // 忽略已綁定的 AccessToken
-//            return Redirect::intended($this->redirectPath());
-//
-//        } elseif ($credentials instanceof OAuthUserCredentialsSession) {
-//
-//            return $this->registerOAuth($manager, $credentials);
-//
-//        } else {
-//
-//            return $this->attemptLogin($provider, $credentials);
-//        }
-//    }
-
-//    /**
-//     * @param  \OWolf\OAuth\Contracts\OAuthSessionManager $manager
-//     * @return string
-//     */
-//    protected function getAuthorizationUrl(OAuthSessionManager $manager)
-//    {
-//        return $manager->getAuthorizationUrl($this->getAuthorizationParams($manager));
-//    }
-//
-//    /**
-//     * @param  \OWolf\OAuth\Contracts\OAuthSessionManager $manager
-//     * @return array
-//     */
-//    protected function getAuthorizationParams(OAuthSessionManager $manager)
-//    {
-//        $repository = App::make(OAuthUserCredentialsRepository::class);
-//        $params = [];
-//
-//        switch ($manager->driver()->config('driver')) {
-//            case 'google':
-//                if ($this->guard()->check()) {
-//                    $credentials = $repository->provider($manager->name())->user($this->guard()->id())->first();
-//                    if ($credentials) {
-//                        $params['login_hint'] = $credentials->owner_id;
-//                    } else {
-//                        $params['approval_prompt'] = null;
-//                        $params['prompt'] = 'consent';
-//                    }
-//                }
-//                break;
-//        }
-//
-//        return $params;
-//    }
+    /**
+     * @param  string  $provider
+     * @return array
+     */
+    protected function authorizationParams($provider)
+    {
+        return ['redirect_uri' => URL::route('oauth.callback', compact('provider'))];
+    }
 
     /**
      * @param  string  $provider
@@ -139,73 +88,6 @@ trait OAuthAuthenticate
         UserOAuth::session($provider)->login($accessToken);
 
         return Redirect::intended($this->redirectPath());
-    }
-
-//    /**
-//     * @param  \OWolf\OAuth\Contracts\OAuthSessionManager $manager
-//     * @param  \OWolf\OAuth\OAuthCredentials\OAuthUserCredentialsSession $credentials
-//     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
-//     *
-//     * @throws \OWolf\OAuth\Exceptions\OAuthOwnerHasTakenException
-//     */
-//    protected function registerOAuth(OAuthSessionManager $manager, OAuthUserCredentialsSession $credentials)
-//    {
-//        $owner = $manager->getOwnerInfo();
-//
-//        if (!$this->guard()->check()) {
-//
-//            if (method_exists($this, 'emailExists') && $this->emailExists($owner->getEmail())) {
-//
-//                return $this->showEmailExists();
-//
-//            } else {
-//                $user = $this->registerNewUser($owner);
-//
-//                $this->guard()->login($user);
-//            }
-//        }
-//
-//        $credentials->toStore($this->guard()->id())->save();
-//
-//        return Redirect::intended($this->redirectPath());
-//    }
-//
-//    /**
-//     * @return \Illuminate\Http\Response
-//     */
-//    protected function showEmailExists()
-//    {
-//        return View::make('owolf::oauth.email_exists');
-//    }
-//
-//    /**
-//     * @param  string $provider
-//     * @return \OWolf\OAuth\Contracts\OAuthSessionManager
-//     *
-//     * @throws \OWolf\OAuth\Exceptions\InvalidOAuthProviderException
-//     */
-//    protected function oauthSessionManager($provider)
-//    {
-//        return OAuth::make($provider);
-//    }
-
-//    /**
-//     * Get the guard to be used during authentication.
-//     *
-//     * @return \Illuminate\Contracts\Auth\StatefulGuard
-//     */
-//    protected function guard()
-//    {
-//        return Auth::guard();
-//    }
-
-    /**
-     * @param  string $provider
-     * @return string
-     */
-    protected function oauthLinkRedirectTo($provider)
-    {
-        return URL::route('oauth.link', compact('provider'));
     }
 
     /**

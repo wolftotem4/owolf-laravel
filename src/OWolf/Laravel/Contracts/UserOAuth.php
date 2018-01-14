@@ -7,11 +7,6 @@ use League\OAuth2\Client\Token\AccessToken;
 interface UserOAuth
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user();
-
-    /**
      * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
      * @return $this
      */

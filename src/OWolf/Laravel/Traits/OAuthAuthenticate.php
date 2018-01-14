@@ -75,7 +75,7 @@ trait OAuthAuthenticate
      */
     protected function authorizationParams($provider)
     {
-        return ['redirectUri' => URL::route('oauth.callback', compact('provider'))];
+        return ['redirect_uri' => URL::route('oauth.callback', compact('provider'))];
     }
 
     /**

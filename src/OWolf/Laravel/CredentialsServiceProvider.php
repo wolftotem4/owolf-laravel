@@ -51,10 +51,7 @@ class CredentialsServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(UserOAuthSession::class, function ($app, $args) {
-            $repository = $app->make(UserOAuthRepository::class);
-            $session = new UserOAuthSession($app, ...$args);
-            $session->setRepository($repository);
-            return $session;
+            return new UserOAuthSession($app, ...$args);
         });
     }
 

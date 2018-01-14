@@ -28,6 +28,6 @@ class UserOAuthRepository
      */
     public function getUserOAuth($userId, $name)
     {
-        return $this->model->firstOrNew(['user_id' => $userId, 'name' => $name]);
+        return $this->model->where('user_id', $userId)->where('name', $name)->first();
     }
 }

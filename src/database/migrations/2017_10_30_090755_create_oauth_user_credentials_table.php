@@ -20,7 +20,7 @@ class CreateOauthUserCredentialsTable extends Migration
             $table->string('owner_id')->charset('ascii');
             $table->string('access_token', 512)->charset('ascii');
             $table->string('refresh_token', 512)->nullable()->charset('ascii');
-            $table->dateTime('expires_at');
+            $table->dateTime('expires_at')->nullable();
             $table->timestamps();
 
             $table->unique(['user_id', 'name']);

@@ -70,7 +70,7 @@ class UserOAuth extends Model implements UserOAuthContract
             'access_token'      => $this->access_token,
             'resource_owner_id' => $this->owner_id,
             'refresh_token'     => $this->refresh_token,
-            'expires'           => $this->expires_at->getTimestamp(),
+            'expires'           => ($this->expires_at) ? $this->expires_at->getTimestamp() : null,
         ]);
     }
 }

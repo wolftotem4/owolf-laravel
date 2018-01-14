@@ -25,6 +25,8 @@ class CredentialsServiceProvider extends ServiceProvider
     {
         $this->registerCredentials();
 
+        $this->registerProviderManager();
+
         $this->registerUserOAuth();
     }
 
@@ -32,6 +34,13 @@ class CredentialsServiceProvider extends ServiceProvider
     {
         $this->app->singleton('owolf.credentials', function ($app) {
             return new CredentialsManager($app);
+        });
+    }
+
+    protected function registerProviderManager()
+    {
+        $this->app->singleton('owolf.provider', function ($app) {
+            return new ProviderManager($app);
         });
     }
 
@@ -61,9 +70,10 @@ class CredentialsServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'owolf.credentials', 'user.oauth', UserOAuthContract::class,
-            UserOAuthRepository::class, UserOAuthManager::class,
-            UserOAuthSession::class,
+            'owolf.credentials', 'user.oauth',
+            'owolf.provider',
+            UserOAuthContract::class, UserOAuthRepository::class,
+            UserOAuthManager::class, UserOAuthSession::class,
         ];
     }
 }

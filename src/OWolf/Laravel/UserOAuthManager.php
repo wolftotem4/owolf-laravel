@@ -30,7 +30,7 @@ class UserOAuthManager
      * @param  string  $name
      * @return \OWolf\Laravel\UserOAuthSession
      */
-    protected function resolve($name)
+    protected function resolveSession($name)
     {
         $config = $this->container['config']["owolf.credentials.$name"];
         return $this->container->make(UserOAuthSession::class, [$name, $config]);
@@ -43,7 +43,7 @@ class UserOAuthManager
     public function session($name)
     {
         if (! isset($this->session[$name])) {
-            $this->session[$name] = $this->resolve($name);
+            $this->session[$name] = $this->resolveSession($name);
         }
         return $this->session[$name];
     }

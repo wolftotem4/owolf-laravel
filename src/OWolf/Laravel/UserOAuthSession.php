@@ -80,7 +80,7 @@ class UserOAuthSession
     public function getHandler()
     {
         $manager = $this->container->make('owolf.provider');
-        return $manager->handler($this->getName());
+        return $manager->getHandler($this->getName());
     }
 
     /**

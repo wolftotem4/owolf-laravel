@@ -147,9 +147,9 @@ class UserOAuthSession
         }
 
         $oauth = $this->repository()->getByOwnerId($this->getName(), $ownerId);
-        $valid = ($oauth && $oauth->user);
+        $valid = ($oauth && $oauth->user_id && ($user = $this->auth()->getProvider()->retrieveById($oauth->user_id)));
         if ($valid) {
-            $this->auth()->setUser($oauth->user);
+            $this->auth()->setUser($user);
         }
         return $valid;
     }

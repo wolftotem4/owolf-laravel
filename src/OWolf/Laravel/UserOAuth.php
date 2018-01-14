@@ -39,14 +39,6 @@ class UserOAuth extends Model implements UserOAuthContract
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
-    {
-        return $this->belongsTo(Authenticatable::class, 'user_id', 'id');
-    }
-
-    /**
      * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
      * @return $this
      */

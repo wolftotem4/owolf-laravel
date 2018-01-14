@@ -2,7 +2,6 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use OWolf\Laravel\UserOAuth as BaseUserOAuth;
 
 class UserOAuth extends BaseUserOAuth
@@ -12,6 +11,6 @@ class UserOAuth extends BaseUserOAuth
      */
     public function user()
     {
-        return $this->belongsTo(Authenticatable::class, 'user_id', 'id');
+        return $this->belongsTo('App\\User', 'user_id', 'id');
     }
 }

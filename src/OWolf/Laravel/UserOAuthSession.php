@@ -50,11 +50,11 @@ class UserOAuthSession
     }
 
     /**
-     * @return \Illuminate\Contracts\Auth\Authenticatable
+     * @return \Illuminate\Contracts\Auth\Guard
      */
     public function auth()
     {
-        return $this->container->make('auth');
+        return $this->container->make('auth.driver');
     }
 
     /**
@@ -78,15 +78,15 @@ class UserOAuthSession
      */
     public function getUserId()
     {
-        return $this->auth()->getAuthIdentifier();
+        return $this->auth()->id();
     }
 
     /**
-     * @return \Illuminate\Contracts\Auth\Authenticatable
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function getUser()
     {
-        return $this->auth();
+        return $this->auth()->user();
     }
 
     /**

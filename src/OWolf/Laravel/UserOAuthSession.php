@@ -2,7 +2,6 @@
 
 namespace OWolf\Laravel;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Container\Container;
 use League\OAuth2\Client\Token\AccessToken;
 
@@ -55,7 +54,7 @@ class UserOAuthSession
      */
     public function auth()
     {
-        return $this->container->make(Authenticatable::class);
+        return $this->container->make('auth');
     }
 
     /**

@@ -28,7 +28,7 @@ trait OAuthAuthenticate
             $authUrl = $handler->getAuthorizationUrl($this->authorizationParams($provider));
             $state = $handler->provider()->getState();
 
-            $request->session()->push('oauth2state', $state);
+            $request->session()->put('oauth2state', $state);
 
             return Redirect::to($authUrl);
         } catch (InvalidOAuthProvider $e) {

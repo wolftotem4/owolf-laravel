@@ -56,7 +56,7 @@ trait OAuthAuthenticate
             $accessToken = $handler->getAccessTokenByCode($request->query('code'));
 
             if ($owner = $session->getByOwner($accessToken)) {
-                $session->loginUsingId($owner->user_id);
+                $session->auth()->loginUsingId($owner->user_id);
                 return Redirect::intended($this->redirectPath());
             } elseif ($session->auth()->check()) {
                 $session->setAccessToken($accessToken);

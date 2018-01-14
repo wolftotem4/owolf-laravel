@@ -30,4 +30,17 @@ class UserOAuthRepository
     {
         return $this->model->where('user_id', $userId)->where('name', $name)->first();
     }
+
+    /**
+     * @param  mixed   $userId
+     * @param  string  $name
+     * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
+     * @return \OWolf\Laravel\Contracts\UserOAuth
+     */
+    public function setUserAccessToken($userId, $name, AccessToken $accessToken)
+    {
+        $oauth = $this->model->firstOrNew(['user_id' => $userId, 'name' => $name]);
+        $oauth->setAccessToken($accessToken);
+        return $oauth;
+    }
 }

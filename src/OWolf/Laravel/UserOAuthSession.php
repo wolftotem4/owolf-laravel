@@ -4,6 +4,7 @@ namespace OWolf\Laravel;
 
 use Illuminate\Contracts\Container\Container;
 use League\OAuth2\Client\Token\AccessToken;
+use OWolf\Laravel\Exceptions\UserOAuthNotLoginException;
 
 class UserOAuthSession
 {
@@ -98,12 +99,16 @@ class UserOAuthSession
     }
 
     /**
-     * @return \League\OAuth2\Client\Token\AccessToken|null
+     * @return \League\OAuth2\Client\Token\AccessToken
+     * @throws \OWolf\Laravel\Exceptions\UserOAuthNotLoginException
      */
     public function getAccessToken()
     {
         $oauth = $this->getUserOAuth();
-        return ($oauth) ? $oauth->toAccessToken() : null;
+        if (! $oauth) {
+            throw new UserOAuthNotLoginException();
+        }
+        return $oauth->toAccessToken();
     }
 
     /**
@@ -112,7 +117,7 @@ class UserOAuthSession
      */
     public function setAccessToken(AccessToken $accessToken)
     {
-        $this->getUserOAuth()->setAccessToken($accessToken);
+        $this->repository()->setUserAccessToken($this->getUserId(), $this->getName(), $accessToken);
         return $this;
     }
 }

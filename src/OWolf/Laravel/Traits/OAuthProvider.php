@@ -3,6 +3,7 @@
 namespace OWolf\Laravel\Traits;
 
 use League\OAuth2\Client\Token\AccessToken;
+use OWolf\Laravel\Facades\OAuthCache;
 
 trait OAuthProvider
 {
@@ -39,5 +40,30 @@ trait OAuthProvider
     public function revokeToken(AccessToken $token, $ownerId)
     {
         return true;
+    }
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @param  bool  $cache
+     * @return \League\OAuth2\Client\Provider\ResourceOwnerInterface
+     */
+    public function getResourceOwner(AccessToken $token, $cache = true)
+    {
+        if ($cache) {
+            $cache = OAuthCache::getResourceDetailCache($token) ?: $this->provider()->getResourceOwner($token);
+            OAuthCache::setResourceDetail($token, $cache);
+            return $cache;
+        }
+
+        return $this->provider()->getResourceOwner($token);
+    }
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @return mixed
+     */
+    public function getOwnerId(AccessToken $token)
+    {
+        return $token->getResourceOwnerId() ?: $this->provider()->getResourceOwner($token)->getId();
     }
 }

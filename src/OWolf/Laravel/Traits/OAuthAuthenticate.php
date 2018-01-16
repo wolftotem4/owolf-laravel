@@ -3,11 +3,9 @@
 
 namespace OWolf\Laravel\Traits;
 
-use Illuminate\Auth\SessionGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\URL;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Exceptions\InvalidOAuthProvider;
@@ -62,7 +60,7 @@ trait OAuthAuthenticate
                 $session->setAccessToken($accessToken);
                 return Redirect::intended($this->redirectPath());
             } else {
-                return $this->registerOAuth($provider, $accessToken);
+                return $this->registerOAuth($session, $accessToken);
             }
         } catch (InvalidOAuthProvider $e) {
             App::Abort(500, 'Invalid OAuth provider.');

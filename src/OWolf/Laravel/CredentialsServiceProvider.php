@@ -28,6 +28,8 @@ class CredentialsServiceProvider extends ServiceProvider
         $this->registerProviderManager();
 
         $this->registerUserOAuth();
+
+        $this->registerOAuthCache();
     }
 
     protected function registerCredentials()
@@ -60,8 +62,14 @@ class CredentialsServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(UserOAuthSession::class, function ($app, $args) {
-            return new UserOAuthSession($app, ...$args);
+            $auth = $app->make('auth.driver');
+            return new UserOAuthSession($app, $auth, ...$args);
         });
+    }
+
+    protected function registerOAuthCache()
+    {
+        $this->app->singleton('owolf.oauth.cache', OAuthCache::class);
     }
 
     /**

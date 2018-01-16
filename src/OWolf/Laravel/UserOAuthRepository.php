@@ -61,6 +61,7 @@ class UserOAuthRepository
     {
         $oauth = $this->model->firstOrNew(['user_id' => $userId, 'name' => $name]);
         $oauth->setAccessToken($accessToken);
+        $oauth->save();
         return $oauth;
     }
 }

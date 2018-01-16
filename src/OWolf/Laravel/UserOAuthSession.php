@@ -3,7 +3,7 @@
 namespace OWolf\Laravel;
 
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Container\Container;
 use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Exceptions\UserOAuthNotLoginException;
@@ -31,6 +31,11 @@ class UserOAuthSession
     protected $container;
 
     /**
+     * @var \Illuminate\Contracts\Auth\Guard
+     */
+    protected $auth;
+
+    /**
      * @var array
      */
     protected $providerResolvers = [];
@@ -41,15 +46,25 @@ class UserOAuthSession
     protected $provider = [];
 
     /**
+     * @var \OWolf\Laravel\Contracts\OAuthHandler
+     */
+    protected $handler;
+
+    /**
      * UserOAuthSession constructor.
      * @param \Illuminate\Contracts\Container\Container $container
+     * @param \Illuminate\Contracts\Auth\Guard $auth
      * @param string  $name
      * @param array   $config
      */
-    public function __construct(Container $container, $name, array $config)
+    public function __construct(Container $container, Guard $auth, $name, array $config)
     {
         $this->container = $container;
         $this->name      = $name;
+        $this->auth      = $auth;
+
+        $providerManager = $this->container->make('owolf.provider');
+        $this->handler   = $providerManager->getOAuthHandler($this->getName());
     }
 
     /**
@@ -57,7 +72,7 @@ class UserOAuthSession
      */
     public function auth()
     {
-        return $this->container->make('auth.driver');
+        return $this->auth;
     }
 
     /**
@@ -70,23 +85,10 @@ class UserOAuthSession
 
     /**
      * @return \OWolf\Laravel\Contracts\OAuthHandler
-     *
-     * @throws \OWolf\Laravel\Exceptions\InvalidOAuthProvider
      */
     public function handler()
     {
-        return $this->getHandler();
-    }
-
-    /**
-     * @return \OWolf\Laravel\Contracts\OAuthHandler
-     *
-     * @throws \OWolf\Laravel\Exceptions\InvalidOAuthProvider
-     */
-    public function getHandler()
-    {
-        $manager = $this->container->make('owolf.provider');
-        return $manager->getOAuthHandler($this->getName());
+        return $this->handler;
     }
 
     /**
@@ -144,7 +146,7 @@ class UserOAuthSession
     public function getByOwner($ownerId)
     {
         if ($ownerId instanceof AccessToken) {
-            $ownerId = $ownerId->getResourceOwnerId();
+            $ownerId = $this->handler()->getOwnerId($ownerId);
         }
 
         return $this->repository()->getByOwnerId($this->getName(), $ownerId);

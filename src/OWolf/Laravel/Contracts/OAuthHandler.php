@@ -27,4 +27,29 @@ interface OAuthHandler extends ProviderHandler
      * @return bool
      */
     public function revokeToken(AccessToken $token, $ownerId);
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @param  bool  $cache
+     * @return \League\OAuth2\Client\Provider\ResourceOwnerInterface
+     */
+    public function getResourceOwner(AccessToken $token, $cache = true);
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @return mixed
+     */
+    public function getOwnerId(AccessToken $token);
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @return string|null
+     */
+    public function getName(AccessToken $token);
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @return string|null
+     */
+    public function getEmail(AccessToken $token);
 }

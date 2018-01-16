@@ -54,12 +54,13 @@ class UserOAuthRepository
     /**
      * @param  mixed   $userId
      * @param  string  $name
+     * @param  string  $ownerId
      * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
      * @return \OWolf\Laravel\Contracts\UserOAuth
      */
-    public function setUserAccessToken($userId, $name, AccessToken $accessToken)
+    public function setUserAccessToken($userId, $name, $ownerId, AccessToken $accessToken)
     {
-        $oauth = $this->model->firstOrNew(['user_id' => $userId, 'name' => $name]);
+        $oauth = $this->model->firstOrNew(['user_id' => $userId, 'name' => $name, 'owner_id' => $ownerId]);
         $oauth->setAccessToken($accessToken);
         $oauth->save();
         return $oauth;

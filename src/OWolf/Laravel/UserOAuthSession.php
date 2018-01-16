@@ -149,6 +149,11 @@ class UserOAuthSession
             $ownerId = $this->handler()->getOwnerId($ownerId);
         }
 
+        // Avoid potential security issues.
+        if (is_null($ownerId) || $ownerId === '' || $ownerId === false) {
+            return null;
+        }
+
         return $this->repository()->getByOwnerId($this->getName(), $ownerId);
     }
 
@@ -177,7 +182,8 @@ class UserOAuthSession
             throw new AuthorizationException;
         }
 
-        $this->repository()->setUserAccessToken($this->getUserId(), $this->getName(), $accessToken);
+        $ownerId = $this->handler()->getOwnerId($accessToken);
+        $this->repository()->setUserAccessToken($this->getUserId(), $this->getName(), $ownerId, $accessToken);
         return $this;
     }
 }

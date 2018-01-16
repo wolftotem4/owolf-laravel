@@ -69,6 +69,6 @@ trait OAuthAutoRegister
      */
     protected function userModel()
     {
-        return Config::get('owolf.user.oauth.model', 'App\\User');
+        return 'App\\User';
     }
 }

@@ -69,7 +69,11 @@ class CredentialsManager
     public function get($name)
     {
         if (! isset($this->credentials[$name])) {
-            $config = array_get($this->container['config']['owolf.credentials'], $name, []);
+            if (! array_has($this->container['config']["owolf.credentials"], $name)) {
+                throw new \RuntimeException('Invalid credentials: ' . htmlentities($name));
+            }
+
+            $config = array_get($this->container['config']['owolf.credentials'], $name);
             $this->credentials[$name] = $this->resolve($name, $config);
         }
         return $this->credentials[$name];

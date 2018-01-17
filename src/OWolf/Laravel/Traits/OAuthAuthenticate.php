@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
-use OWolf\Laravel\Exceptions\InvalidOAuthProvider;
+use OWolf\Laravel\Exceptions\InvalidOAuthProviderException;
 use OWolf\Laravel\Facades\CredentialsProvider;
 use OWolf\Laravel\Facades\UserOAuth;
 
@@ -30,7 +30,7 @@ trait OAuthAuthenticate
             $request->session()->put('oauth2state', $state);
 
             return Redirect::to($authUrl);
-        } catch (InvalidOAuthProvider $e) {
+        } catch (InvalidOAuthProviderException $e) {
             App::Abort(500, 'Invalid OAuth provider.');
         }
     }
@@ -54,6 +54,7 @@ trait OAuthAuthenticate
             $accessToken = $handler->getAccessTokenByCode($request->query('code'));
 
             if ($owner = $session->getByOwner($accessToken)) {
+                $session->setAccessToken($accessToken);
                 $session->auth()->loginUsingId($owner->user_id);
                 return Redirect::intended($this->redirectPath());
             } elseif ($session->auth()->check()) {
@@ -62,7 +63,7 @@ trait OAuthAuthenticate
             } else {
                 return $this->registerOAuth($session, $accessToken);
             }
-        } catch (InvalidOAuthProvider $e) {
+        } catch (InvalidOAuthProviderException $e) {
             App::Abort(500, 'Invalid OAuth provider.');
         } catch (IdentityProviderException $e) {
             App::abort(500, $e->getMessage());

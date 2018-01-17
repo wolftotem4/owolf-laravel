@@ -5,7 +5,7 @@ namespace OWolf\Laravel;
 use Closure;
 use Illuminate\Contracts\Container\Container;
 use OWolf\Laravel\Contracts\OAuthHandler;
-use OWolf\Laravel\Exceptions\InvalidOAuthProvider;
+use OWolf\Laravel\Exceptions\InvalidOAuthProviderException;
 
 class ProviderManager
 {
@@ -81,13 +81,13 @@ class ProviderManager
      * @param  string  $name
      * @return \OWolf\Laravel\Contracts\OAuthHandler
      *
-     * @throws \OWolf\Laravel\Exceptions\InvalidOAuthProvider
+     * @throws \OWolf\Laravel\Exceptions\InvalidOAuthProviderException
      */
     public function getOAuthHandler($name)
     {
         $handler = $this->getHandler($name);
         if (! ($handler instanceof OAuthHandler)) {
-            throw new InvalidOAuthProvider('Invalid OAuth Provider: ' . $name);
+            throw new InvalidOAuthProviderException('Invalid OAuth Provider: ' . $name);
         }
         return $handler;
     }

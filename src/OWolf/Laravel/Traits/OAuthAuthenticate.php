@@ -3,6 +3,7 @@
 
 namespace OWolf\Laravel\Traits;
 
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
@@ -43,9 +44,8 @@ trait OAuthAuthenticate
     public function callback(Request $request, $provider)
     {
         try {
-            $session =  UserOAuth::session($provider);
-            $handler  = $session->handler();
-            $provider = $handler->provider();
+            $session    =  UserOAuth::session($provider);
+            $handler    = $session->handler();
 
             if (! $this->validateState($request)) {
                 App::abort(401, 'Invalid state parameter.');
@@ -54,14 +54,13 @@ trait OAuthAuthenticate
             $accessToken = $handler->getAccessTokenByCode($request->query('code'));
 
             if ($owner = $session->getByOwner($accessToken)) {
-                $session->setAccessToken($accessToken);
-                $session->auth()->loginUsingId($owner->user_id);
-                return Redirect::intended($this->redirectPath());
+                $user = $session->auth()->getProvider()->retrieveById($owner->user_id);
+                return $this->attemptLogin($provider, $user, $accessToken);
             } elseif ($session->auth()->check()) {
                 $session->setAccessToken($accessToken);
                 return Redirect::intended($this->redirectPath());
             } else {
-                return $this->registerOAuth($session, $accessToken);
+                return $this->registerOAuth($provider, $accessToken);
             }
         } catch (InvalidOAuthProviderException $e) {
             App::Abort(500, 'Invalid OAuth provider.');
@@ -81,12 +80,24 @@ trait OAuthAuthenticate
 
     /**
      * @param  string  $provider
+     * @param  mixed   $user
      * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    protected function attemptLogin($provider, AccessToken $accessToken)
+    protected function attemptLogin($provider, $user, AccessToken $accessToken)
     {
-        UserOAuth::session($provider)->login($accessToken);
+        $session    =  UserOAuth::session($provider);
+        $auth       = $session->auth();
+
+        if ($auth instanceof StatefulGuard) {
+            $auth->login($user);
+        } else {
+            $auth->setUser($user);
+        }
+
+        $session->setAccessToken($accessToken);
 
         return Redirect::intended($this->redirectPath());
     }

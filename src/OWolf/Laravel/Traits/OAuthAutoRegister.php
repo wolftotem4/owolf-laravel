@@ -8,33 +8,27 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use League\OAuth2\Client\Token\AccessToken;
+use OWolf\Laravel\Facades\UserOAuth;
 use OWolf\Laravel\UserOAuthSession;
 
 trait OAuthAutoRegister
 {
     /**
-     * @param \OWolf\Laravel\UserOAuthSession          $session
-     * @param \League\OAuth2\Client\Token\AccessToken  $token
+     * @param  string  $provider
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @return mixed
      */
-    protected function registerOAuth(UserOAuthSession $session, AccessToken $token)
+    protected function registerOAuth($provider, AccessToken $token)
     {
-        $email = $session->handler()->getEmail($token);
-        $user  = ($email) ? $this->getExistingUserByEmail($email) : null;
-        $auth  = $session->auth();
+        $session    =  UserOAuth::session($provider);
+        $email      = $session->handler()->getEmail($token);
+        $user       = ($email) ? $this->getExistingUserByEmail($email) : null;
         if (! $user) {
-            $name = $session->handler()->getName($token);
-            $user = $this->createNewUser($name, $email);
+            $name   = $session->handler()->getName($token);
+            $user   = $this->createNewUser($name, $email);
         }
 
-        if ($auth instanceof StatefulGuard) {
-            $auth->login($user);
-        } else {
-            $auth->setUser($user);
-        }
-
-        $session->setAccessToken($token);
-
-        return Redirect::intended($this->redirectPath());
+        return $this->attemptLogin($provider, $user, $token);
     }
 
     /**

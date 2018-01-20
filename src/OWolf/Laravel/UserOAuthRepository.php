@@ -24,6 +24,16 @@ class UserOAuthRepository
     /**
      * @param  mixed   $userId
      * @param  string  $name
+     * @return bool
+     */
+    public function check($userId, $name)
+    {
+        return $this->model->where('user_id', $userId)->where('name', $name)->exists();
+    }
+
+    /**
+     * @param  mixed   $userId
+     * @param  string  $name
      * @return \OWolf\Laravel\Contracts\UserOAuth|null
      */
     public function getUserOAuth($userId, $name)

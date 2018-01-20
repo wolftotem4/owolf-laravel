@@ -140,6 +140,14 @@ class UserOAuthSession
     }
 
     /**
+     * @return bool
+     */
+    public function check()
+    {
+        return $this->repository()->check($this->getUserId(), $this->getName());
+    }
+
+    /**
      * @param  \League\OAuth2\Client\Token\AccessToken|string  $ownerId
      * @return \OWolf\Laravel\Contracts\UserOAuth|null
      */
@@ -165,7 +173,7 @@ class UserOAuthSession
     {
         $oauth = $this->getUserOAuth();
         if (! $oauth) {
-            throw new UserOAuthNotLoginException();
+            throw new UserOAuthNotLoginException('Unauthenticated', [$this->getName()]);
         }
         return $oauth->toAccessToken();
     }

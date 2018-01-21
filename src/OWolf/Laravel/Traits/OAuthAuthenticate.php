@@ -12,6 +12,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Exceptions\InvalidOAuthProviderException;
 use OWolf\Laravel\Facades\CredentialsProvider;
 use OWolf\Laravel\Facades\UserOAuth;
+use RuntimeException;
 
 trait OAuthAuthenticate
 {
@@ -91,12 +92,11 @@ trait OAuthAuthenticate
         $session    =  UserOAuth::session($provider);
         $auth       = $session->auth();
 
-        if ($auth instanceof StatefulGuard) {
-            $auth->login($user);
-        } else {
-            $auth->setUser($user);
+        if (! ($auth instanceof StatefulGuard)) {
+            throw new RuntimeException('OAuth login is only for stateful session.');
         }
 
+        $auth->login($user);
         $session->setAccessToken($accessToken);
 
         return Redirect::intended($this->redirectPath());

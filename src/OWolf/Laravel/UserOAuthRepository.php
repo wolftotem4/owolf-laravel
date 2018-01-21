@@ -32,6 +32,16 @@ class UserOAuthRepository
     }
 
     /**
+     * @param  string  $name
+     * @param  string  $ownerId
+     * @return bool
+     */
+    public function isTokenBinded($name, $ownerId)
+    {
+        return $this->model->where('name', $name)->where('owner_id', $ownerId)->exists();
+    }
+
+    /**
      * @param  mixed   $userId
      * @param  string  $name
      * @return \OWolf\Laravel\Contracts\UserOAuth|null

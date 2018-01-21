@@ -3,8 +3,6 @@
 namespace OWolf\Laravel;
 
 use Illuminate\Support\ServiceProvider;
-use OWolf\Credentials\AccessTokenCredentials;
-use OWolf\Laravel\Contracts\OAuthHandler;
 use OWolf\Laravel\Contracts\UserOAuth as UserOAuthContract;
 
 class CredentialsServiceProvider extends ServiceProvider
@@ -21,23 +19,6 @@ class CredentialsServiceProvider extends ServiceProvider
             __DIR__ . '/../../App/UserOAuth.php' => app_path('UserOAuth.php'),
             __DIR__ . '/../../config/owolf.php' => config_path('owolf.php'),
         ]);
-
-        OAuthCredentials::setProviderValidator(function ($name) {
-            $manager = $this->app->make('owolf.provider');
-            $handler = $manager->getHandler($name);
-            return ($handler instanceof OAuthHandler);
-        });
-
-        OAuthCredentials::setBindingValidator(function ($name, $token) {
-            $manager = $this->app->make('owolf.provider');
-            $handler = $manager->getHandler($name);
-            if (! ($handler instanceof OAuthHandler)) {
-                return false;
-            }
-            $repository = $this->app->make(UserOAuthRepository::class);
-            $ownerId = $handler->getOwnerId($token);
-            return $repository->isTokenBinded($name, $ownerId);
-        });
     }
 
     public function register()
@@ -50,7 +31,9 @@ class CredentialsServiceProvider extends ServiceProvider
 
         $this->registerOAuthCache();
 
-        $this->app->make(AccessTokenEncryption::class);
+        $this->registerValidator();
+
+        $this->app->singleton(AccessTokenEncryption::class);
     }
 
     protected function registerCredentials()
@@ -93,6 +76,11 @@ class CredentialsServiceProvider extends ServiceProvider
         $this->app->singleton('owolf.oauth.cache', OAuthCache::class);
     }
 
+    protected function registerValidator()
+    {
+        $this->app->singleton('owolf.validator', CredentialsValidator::class);
+    }
+
     /**
      * @return array
      */
@@ -100,9 +88,10 @@ class CredentialsServiceProvider extends ServiceProvider
     {
         return [
             'owolf.credentials', 'user.oauth',
-            'owolf.provider',
+            'owolf.provider', 'owolf.validator',
             UserOAuthContract::class, UserOAuthRepository::class,
             UserOAuthManager::class, UserOAuthSession::class,
+            AccessTokenEncryption::class,
         ];
     }
 }

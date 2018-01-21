@@ -3,6 +3,7 @@
 namespace OWolf\Laravel;
 
 use Closure;
+use Illuminate\Support\Facades\App;
 use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Exceptions\InvalidOAuthProviderException;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -20,26 +21,23 @@ class OAuthCredentials
     protected $token;
 
     /**
-     * @var \Closure
+     * @var \OWolf\Laravel\CredentialsValidator
      */
-    protected static $providerValidator;
-
-    /**
-     * @var \Closure
-     */
-    protected static $bindingValidator;
+    protected $validator;
 
     /**
      * AccessTokenCredentials constructor.
      * @param string  $name
-     * @param \League\OAuth2\Client\Token\AccessToken $token
+     * @param \League\OAuth2\Client\Token\AccessToken  $token
+     * @param \OWolf\Laravel\CredentialsValidator      $validator
      *
      * @throws \OWolf\Laravel\Exceptions\InvalidOAuthProviderException
      */
-    public function __construct($name, AccessToken $token)
+    public function __construct($name, AccessToken $token, $validator = null)
     {
-        $this->name = $name;
-        $this->token = $token;
+        $this->name      = $name;
+        $this->token     = $token;
+        $this->validator = $validator ?: App::make('owolf.validator');
 
         if (! $this->validateOAuthProvider($name)) {
             throw new InvalidOAuthProviderException('Invalid OAuth provider: ' . htmlentities($name));
@@ -49,43 +47,12 @@ class OAuthCredentials
     /**
      * @param  string  $name
      * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @param  \OWolf\Laravel\CredentialsValidator      $validator
      * @return static
      */
-    public static function make($name, AccessToken $token)
+    public static function make($name, AccessToken $token, $validator = null)
     {
-        return new static($name, $token);
-    }
-
-    /**
-     * @return \Closure
-     */
-    public static function getProviderValidator()
-    {
-        return static::$providerValidator;
-    }
-
-    /**
-     * @param \Closure $closure
-     */
-    public static function setProviderValidator(Closure $closure)
-    {
-        static::$providerValidator = $closure;
-    }
-
-    /**
-     * @return \Closure
-     */
-    public static function getBindingValidator()
-    {
-        return static::$bindingValidator;
-    }
-
-    /**
-     * @param \Closure $closure
-     */
-    public static function setBindingValidator(Closure $closure)
-    {
-        static::$bindingValidator = $closure;
+        return new static($name, $token, $validator);
     }
 
     /**
@@ -118,12 +85,7 @@ class OAuthCredentials
      */
     public function isBinded()
     {
-        $validator = static::getBindingValidator();
-        if (! $validator) {
-            throw new RuntimeException('OAuth binding validator is not set.');
-        }
-
-        return $validator($this->name, $this->token);
+        return $this->validator->validateOAuthBinding($this->name, $this->token);
     }
 
     /**
@@ -132,11 +94,7 @@ class OAuthCredentials
      */
     protected function validateOAuthProvider($name)
     {
-        $validator = static::getProviderValidator();
-        if (! $validator) {
-            throw new RuntimeException('Provider validator is not set.');
-        }
-        return $validator($name);
+        return $this->validator->validateOAuthProvider($name);
     }
 
     /**

@@ -34,6 +34,7 @@
             "aliases": {
                 "Credentials": "OWolf\\Laravel\\Facades\\Credentials",
                 "CredentialsProvider": "OWolf\\Laravel\\Facades\\CredentialsProvider",
+                "CredentialsValidator": "OWolf\\Laravel\\Facades\\CredentialsValidator",
                 "OAuthCache": "OWolf\\Laravel\\Facades\\OAuthCache",
                 "UserOAuth": "OWolf\\Laravel\\Facades\\UserOAuth"
             }

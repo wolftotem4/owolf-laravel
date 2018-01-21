@@ -2,13 +2,14 @@
 
 namespace OWolf\Laravel;
 
-use Closure;
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Facades\App;
+use JsonSerializable;
 use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Exceptions\InvalidOAuthProviderException;
-use Symfony\Component\Console\Exception\RuntimeException;
+use Serializable;
 
-class OAuthCredentials
+class OAuthCredentials implements Serializable, Jsonable, JsonSerializable
 {
     /**
      * @var string
@@ -26,6 +27,11 @@ class OAuthCredentials
     protected $validator;
 
     /**
+     * @var string
+     */
+    protected static $defaultValidator = 'owolf.validator';
+
+    /**
      * AccessTokenCredentials constructor.
      * @param string  $name
      * @param \League\OAuth2\Client\Token\AccessToken  $token
@@ -37,7 +43,7 @@ class OAuthCredentials
     {
         $this->name      = $name;
         $this->token     = $token;
-        $this->validator = $validator ?: App::make('owolf.validator');
+        $this->validator = $validator ?: $this->getDefaultValidator();
 
         if (! $this->validateOAuthProvider($name)) {
             throw new InvalidOAuthProviderException('Invalid OAuth provider: ' . htmlentities($name));
@@ -98,6 +104,14 @@ class OAuthCredentials
     }
 
     /**
+     * @return \OWolf\Laravel\CredentialsValidator
+     */
+    protected function getDefaultValidator()
+    {
+        return App::make(static::$defaultValidator);
+    }
+
+    /**
      * @return array
      */
     public function toArray()
@@ -106,5 +120,41 @@ class OAuthCredentials
             'name'  => $this->name,
             'token' => $this->token,
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize($this->toArray());
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        $this->name         = $data['name'];
+        $this->token        = $data['token'];
+        $this->validator    = $this->getDefaultValidator();
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * @param  int  $options
+     * @return string
+     */
+    public function toJson($options = 0)
+    {
+        return json_encode($this, $options);
     }
 }

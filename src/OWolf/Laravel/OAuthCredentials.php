@@ -55,6 +55,8 @@ class OAuthCredentials implements Serializable, Jsonable, JsonSerializable
      * @param  \League\OAuth2\Client\Token\AccessToken  $token
      * @param  \OWolf\Laravel\CredentialsValidator      $validator
      * @return static
+     *
+     * @throws \OWolf\Laravel\Exceptions\InvalidOAuthProviderException
      */
     public static function make($name, AccessToken $token, $validator = null)
     {

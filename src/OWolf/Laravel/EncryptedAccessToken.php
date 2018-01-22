@@ -2,6 +2,7 @@
 
 namespace OWolf\Laravel;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Support\Htmlable;
 
 class EncryptedAccessToken implements Htmlable
@@ -17,13 +18,20 @@ class EncryptedAccessToken implements Htmlable
     protected $payload;
 
     /**
+     * @var \Carbon\Carbon
+     */
+    protected $expires;
+
+    /**
      * EncryptedAccessToken constructor.
      * @param string $payload
+     * @param Carbon $expires
      * @param string $key
      */
-    public function __construct($payload, $key = 'oauth')
+    public function __construct($payload, Carbon $expires, $key = 'oauth')
     {
         $this->payload = $payload;
+        $this->expires = $expires;
         $this->key     = $key;
     }
 
@@ -51,6 +59,14 @@ class EncryptedAccessToken implements Htmlable
     {
         $this->key = $key;
         return $this;
+    }
+
+    /**
+     * @return \Carbon\Carbon
+     */
+    public function getExpires()
+    {
+        return $this->expires;
     }
 
     /**

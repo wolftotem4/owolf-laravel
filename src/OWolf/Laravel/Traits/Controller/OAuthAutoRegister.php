@@ -1,34 +1,53 @@
 <?php
 
-namespace OWolf\Laravel\Traits;
+namespace OWolf\Laravel\Traits\Controller;
 
-use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use League\OAuth2\Client\Token\AccessToken;
 use OWolf\Laravel\Facades\UserOAuth;
-use OWolf\Laravel\UserOAuthSession;
+use OWolf\Laravel\OAuthCredentials;
 
 trait OAuthAutoRegister
 {
     /**
+     * @param  \Illuminate\Http\Request  $request
      * @param  string  $provider
      * @param  \League\OAuth2\Client\Token\AccessToken  $token
      * @return mixed
      */
-    protected function registerOAuth($provider, AccessToken $token)
+    protected function registerOAuth(Request $request, $provider, AccessToken $token)
     {
-        $session    =  UserOAuth::session($provider);
+        $session    = UserOAuth::session($provider);
         $email      = $session->handler()->getEmail($token);
         $user       = ($email) ? $this->getExistingUserByEmail($email) : null;
+
         if (! $user) {
             $name   = $session->handler()->getName($token);
+
+            if (empty($name) || empty($email)) {
+                return $this->registerOAuthForm($request, $provider, $token);
+            }
+
             $user   = $this->createNewUser($name, $email);
         }
 
         return $this->attemptLogin($provider, $user, $token);
+    }
+
+    /**
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $provider
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @return mixed
+     */
+    protected function registerOAuthForm(Request $request, $provider, AccessToken $token)
+    {
+        $credentials = OAuthCredentials::make($provider, $token);
+        $request->session()->put('oauth2register', $credentials);
+        return Redirect::route('register', ['oauth' => true]);
     }
 
     /**

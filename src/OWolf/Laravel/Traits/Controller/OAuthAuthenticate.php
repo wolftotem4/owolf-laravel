@@ -1,7 +1,7 @@
 <?php
 
 
-namespace OWolf\Laravel\Traits;
+namespace OWolf\Laravel\Traits\Controller;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
@@ -45,7 +45,7 @@ trait OAuthAuthenticate
     public function callback(Request $request, $provider)
     {
         try {
-            $session    =  UserOAuth::session($provider);
+            $session    = UserOAuth::session($provider);
             $handler    = $session->handler();
 
             if (! $this->validateState($request)) {
@@ -61,7 +61,7 @@ trait OAuthAuthenticate
                 $session->setAccessToken($accessToken);
                 return Redirect::intended($this->redirectPath());
             } else {
-                return $this->registerOAuth($provider, $accessToken);
+                return $this->registerOAuth($request, $provider, $accessToken);
             }
         } catch (InvalidOAuthProviderException $e) {
             App::Abort(500, 'Invalid OAuth provider.');
@@ -89,7 +89,7 @@ trait OAuthAuthenticate
      */
     protected function attemptLogin($provider, $user, AccessToken $accessToken)
     {
-        $session    =  UserOAuth::session($provider);
+        $session    = UserOAuth::session($provider);
         $auth       = $session->auth();
 
         if (! ($auth instanceof StatefulGuard)) {

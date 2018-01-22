@@ -17,6 +17,8 @@ class CredentialsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../database/migrations/' => database_path('migrations'),
             __DIR__ . '/../../App/UserOAuth.php' => app_path('UserOAuth.php'),
+            __DIR__ . '/../../App/Http/Controllers/OAuth/LoginController.php'
+                => app_path('Http/Controllers/OAuth/LoginController.php'),
             __DIR__ . '/../../config/owolf.php' => config_path('owolf.php'),
         ]);
     }

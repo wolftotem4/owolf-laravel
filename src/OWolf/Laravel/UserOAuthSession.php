@@ -181,13 +181,11 @@ class UserOAuthSession
     /**
      * @param  \League\OAuth2\Client\Token\AccessToken $accessToken
      * @return $this
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function setAccessToken(AccessToken $accessToken)
     {
         if (! $this->auth()->check()) {
-            throw new AuthorizationException;
+            throw new \RuntimeException('Call setAccessToken without authenticated user session.');
         }
 
         $ownerId = $this->handler()->getOwnerId($accessToken);

@@ -4,10 +4,10 @@ namespace Tests\Unit\Laravel;
 
 use Illuminate\Support\Facades\URL;
 use Mockery;
-use OWolf\Laravel\Utils;
+use OWolf\Laravel\Util;
 use PHPUnit\Framework\TestCase;
 
-class UtilsTest extends TestCase
+class UtilTest extends TestCase
 {
     protected function tearDown()
     {
@@ -27,7 +27,7 @@ class UtilsTest extends TestCase
             ->with('oauth/callback')
             ->andReturn($url);
 
-        $this->assertEquals($url, Utils::redirectUri($redirectUri, $provider));
+        $this->assertEquals($url, Util::redirectUri($redirectUri, $provider));
     }
 
     public function testRedirectUri_url_2()
@@ -40,7 +40,7 @@ class UtilsTest extends TestCase
             ->with($redirectUri)
             ->andReturn($redirectUri);
 
-        $this->assertEquals($redirectUri, Utils::redirectUri($redirectUri, $provider));
+        $this->assertEquals($redirectUri, Util::redirectUri($redirectUri, $provider));
     }
 
     public function testRedirectUri_route()
@@ -54,7 +54,7 @@ class UtilsTest extends TestCase
             ->with('oauth.callback', [$provider])
             ->andReturn($url);
 
-        $this->assertEquals($url, Utils::redirectUri($redirectUri, $provider));
+        $this->assertEquals($url, Util::redirectUri($redirectUri, $provider));
     }
 
     public function testRedirectUri_default()
@@ -68,6 +68,6 @@ class UtilsTest extends TestCase
             ->with('oauth.callback', [$provider])
             ->andReturn($url);
 
-        $this->assertEquals($url, Utils::redirectUri($redirectUri, $provider));
+        $this->assertEquals($url, Util::redirectUri($redirectUri, $provider));
     }
 }

@@ -33,7 +33,7 @@ trait OAuthAuthenticate
 
             return Redirect::to($authUrl);
         } catch (InvalidOAuthProviderException $e) {
-            App::Abort(500, 'Invalid OAuth provider.');
+            App::abort(500, 'Invalid OAuth provider.');
         }
     }
 
@@ -55,8 +55,7 @@ trait OAuthAuthenticate
             $accessToken = $handler->getAccessTokenByCode($request->query('code'));
 
             if ($owner = $session->getByOwner($accessToken)) {
-                $user = $session->auth()->getProvider()->retrieveById($owner->user_id);
-                return $this->attemptLogin($provider, $user, $accessToken);
+                return $this->attemptLogin($provider, $owner->user_id, $accessToken);
             } elseif ($session->auth()->check()) {
                 $session->setAccessToken($accessToken);
                 return Redirect::intended($this->redirectPath());
@@ -64,7 +63,7 @@ trait OAuthAuthenticate
                 return $this->registerOAuth($request, $provider, $accessToken);
             }
         } catch (InvalidOAuthProviderException $e) {
-            App::Abort(500, 'Invalid OAuth provider.');
+            App::abort(500, 'Invalid OAuth provider.');
         } catch (IdentityProviderException $e) {
             App::abort(500, $e->getMessage());
         }
@@ -81,13 +80,11 @@ trait OAuthAuthenticate
 
     /**
      * @param  string  $provider
-     * @param  mixed   $user
+     * @param  mixed   $userId
      * @param  \League\OAuth2\Client\Token\AccessToken  $accessToken
      * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    protected function attemptLogin($provider, $user, AccessToken $accessToken)
+    protected function attemptLogin($provider, $userId, AccessToken $accessToken)
     {
         $session    = UserOAuth::session($provider);
         $auth       = $session->auth();
@@ -96,7 +93,7 @@ trait OAuthAuthenticate
             throw new RuntimeException('OAuth login is only for stateful session.');
         }
 
-        $auth->login($user);
+        $auth->loginUsingId($userId);
         $session->setAccessToken($accessToken);
 
         return Redirect::intended($this->redirectPath());

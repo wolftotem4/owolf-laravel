@@ -4,7 +4,7 @@ namespace OWolf\Laravel;
 
 use Illuminate\Support\Facades\URL;
 
-class Utils
+class Util
 {
     /**
      * @param  string  $uri

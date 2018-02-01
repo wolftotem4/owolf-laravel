@@ -34,7 +34,7 @@ trait OAuthAutoRegister
             $user   = $this->createNewUser($name, $email);
         }
 
-        return $this->attemptLogin($provider, $user, $token);
+        return $this->attemptLogin($provider, $user->id, $token);
     }
 
     /**

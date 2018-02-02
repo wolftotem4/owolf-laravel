@@ -85,4 +85,13 @@ class UserOAuthRepository
         $oauth->save();
         return $oauth;
     }
+
+    /**
+     * @param  mixed  $userId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllByUserId($userId)
+    {
+        return $this->model->where('user_id', $userId)->get();
+    }
 }

@@ -15,7 +15,7 @@ trait OAuthProvider
     {
         if (array_has($this->config, 'scope')) {
             $scope      = $this->config['scope'];
-            $options    = compact('scope') + $options;
+            $options    = $options + compact('scope');
         }
         return $this->provider()->getAuthorizationUrl($options);
     }

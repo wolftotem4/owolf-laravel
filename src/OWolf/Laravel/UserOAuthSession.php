@@ -2,7 +2,6 @@
 
 namespace OWolf\Laravel;
 
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Container\Container;
 use League\OAuth2\Client\Token\AccessToken;
@@ -49,6 +48,11 @@ class UserOAuthSession
      * @var \OWolf\Laravel\Contracts\OAuthHandler
      */
     protected $handler;
+
+    /**
+     * @var \OWolf\Laravel\Contracts\UserOAuth|null
+     */
+    protected $cacheUserOAuth;
 
     /**
      * UserOAuthSession constructor.
@@ -120,7 +124,10 @@ class UserOAuthSession
      */
     public function getUserOAuth()
     {
-        return $this->repository()->getUserOAuth($this->getUserId(), $this->getName());
+        if (is_null($this->cacheUserOAuth)) {
+            $this->cacheUserOAuth = $this->repository()->getUserOAuth($this->getUserId(), $this->getName());
+        }
+        return $this->cacheUserOAuth;
     }
 
     /**
@@ -167,6 +174,7 @@ class UserOAuthSession
 
     /**
      * @return \League\OAuth2\Client\Token\AccessToken
+     *
      * @throws \OWolf\Laravel\Exceptions\UserOAuthNotLoginException
      */
     public function getAccessToken()
@@ -191,5 +199,34 @@ class UserOAuthSession
         $ownerId = $this->handler()->getOwnerId($accessToken);
         $this->repository()->setUserAccessToken($this->getUserId(), $this->getName(), $ownerId, $accessToken);
         return $this;
+    }
+
+    /**
+     * @return $this
+     *
+     * @throws \OWolf\Laravel\Exceptions\UserOAuthNotLoginException
+     */
+    public function refreshExpired()
+    {
+        $token = $this->getAccessToken();
+        if ($token->hasExpired() && $this->tokenRefreshable($token)) {
+            $newToken = $this->handler()->refreshToken($token);
+
+            $userOAuth = $this->getUserOAuth();
+            $userOAuth->setAccessToken($newToken);
+            if (method_exists($userOAuth, 'save')) {
+                $userOAuth->save();
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @return bool
+     */
+    protected function tokenRefreshable(AccessToken $token)
+    {
+        return (bool) $token->getRefreshToken();
     }
 }

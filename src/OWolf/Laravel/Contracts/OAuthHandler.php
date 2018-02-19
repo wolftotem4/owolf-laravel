@@ -52,4 +52,13 @@ interface OAuthHandler extends ProviderHandler
      * @return string|null
      */
     public function getEmail(AccessToken $token);
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @param  array  $options
+     * @return \League\OAuth2\Client\Token\AccessToken
+     *
+     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     */
+    public function refreshToken(AccessToken $token, array $options = []);
 }

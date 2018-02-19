@@ -47,9 +47,14 @@ class UserOAuth extends Model implements UserOAuthContract
         // The function won't set 'owner_id' since $accessToken might not have 'resource_owner_id'
         $this->fill([
             'access_token'  => $accessToken->getToken(),
-            'refresh_token' => $accessToken->getRefreshToken(),
             'expires_at'    => $accessToken->getExpires(),
         ]);
+
+        // Update new refresh token if there is one.
+        if ($refreshToken = $accessToken->getRefreshToken()) {
+            $this->refresh_token = $accessToken->getRefreshToken();
+        }
+
         return $this;
     }
 

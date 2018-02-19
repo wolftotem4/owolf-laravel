@@ -66,4 +66,16 @@ trait OAuthProvider
     {
         return $token->getResourceOwnerId() ?: $this->provider()->getResourceOwner($token)->getId();
     }
+
+    /**
+     * @param  \League\OAuth2\Client\Token\AccessToken  $token
+     * @param  array  $options
+     * @return \League\OAuth2\Client\Token\AccessToken
+     *
+     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     */
+    public function refreshToken(AccessToken $token, array $options = [])
+    {
+        return $this->provider()->getAccessToken('refresh_token', ['refresh_token' => $token->getRefreshToken()] + $options);
+    }
 }
